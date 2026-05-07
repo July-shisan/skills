@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f4f5f7;-webkit-text-size-adjust:100%;">
+
+<!-- ================================================================
+     每日 Skills 日报 - 微信公众号 HTML 模板
+
+     核心约束：
+     - 所有样式必须内联（微信不支持 <style> 和 class）
+     - 使用 <section> 代替 <div>（微信渲染兼容）
+     - 最大宽度 677px（微信文章标准宽度）
+     - 占位符用 {{变量名}} 标记，生成时替换为实际数据
+
+     排名徽章规则（内联紧凑型，适配手机端）：
+     - 1: 红色圆形白字  #ff4757  16×16px font-size:9px
+     - 2: 橙色圆形白字  #ff6348  16×16px font-size:9px
+     - 3: 琥珀色圆形白字 #ffa502  16×16px font-size:9px
+     - 4+: 灰色数字无背景  #ccc    16×16px font-size:9px
+
+     布局优化（手机端）：
+     - 徽章内联在名称行内，不占用独立 flex 列
+     - skill 名称允许自然换行，不做截断
+     - 右侧数据列紧凑排列
+     ================================================================ -->
+
+<!-- ===== 外层容器 ===== -->
+<section style="max-width:677px;margin:0 auto;background:#fff;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',sans-serif;font-size:15px;line-height:1.8;color:#333;word-break:break-word;overflow:hidden;box-sizing:border-box;">
+
+  <!-- ===== 主标题区 ===== -->
+  <section style="background:linear-gradient(135deg,#ff6b35,#ff8c42);padding:28px 24px 32px;text-align:center;">
+    <h1 style="font-size:26px;font-weight:800;color:#fff;margin:0 0 8px;letter-spacing:3px;">每日 Skills 日报 | {{YYYY年MM月DD日}}</h1>
+    <p style="font-size:12px;color:rgba(255,255,255,0.6);margin:0;letter-spacing:0.5px;">Agent Skills 生态热门动态 · 今日必装</p>
+  </section>
+
+  <!-- ===== 数据概览条 ===== -->
+  <section style="display:table;width:100%;background:#fff8f5;border-bottom:1px solid #ffe0d0;table-layout:fixed;">
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
+      <p style="margin:0;font-size:14px;font-weight:600;color:#ff6b35;">{{N}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">趋势新贵</p>
+    </section>
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
+      <p style="margin:0;font-size:14px;font-weight:600;color:#e74c3c;">{{N}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">新晋热门</p>
+    </section>
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
+      <p style="margin:0;font-size:14px;font-weight:600;color:#3498db;">{{N}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">今日推荐</p>
+    </section>
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;">
+      <p style="margin:0;font-size:14px;font-weight:600;color:#27ae60;">{{N}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">趋势洞察</p>
+    </section>
+  </section>
+
+  <!-- ===== 今日推荐 ===== -->
+  <section style="padding:24px 18px 8px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #ff6b35;">今日推荐</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">从榜单精选最值得关注的 Skills，附带详细介绍</p>
+    {{RECOMMENDATIONS}}
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 本周趋势 Top 20 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #ff6b35;">本周趋势 Top 20</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">本周安装增速最快的 Skills，正在爆发中</p>
+
+    <section style="margin:0 0 4px;">
+      {{TRENDING_LIST}}
+    </section>
+
+    <!-- 安装命令提示 -->
+    <section style="background:#fafafa;border-radius:6px;padding:10px 14px;margin:8px 0 0;">
+      <p style="margin:0;font-size:11px;color:#aaa;">安装命令：<code style="background:#e8e8e8;padding:2px 6px;border-radius:3px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:11px;">npx skills add &lt;来源&gt;@&lt;skill-name&gt; -g -y</code></p>
+    </section>
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 新晋热门 Top 20 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #e74c3c;">新晋热门 Top 20</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">今日新增安装量最大，刚刚冲榜的 Skills</p>
+
+    <section style="margin:0 0 4px;">
+      {{HOT_LIST}}
+    </section>
+
+    <!-- 安装命令提示 -->
+    <section style="background:#fafafa;border-radius:6px;padding:10px 14px;margin:8px 0 0;">
+      <p style="margin:0;font-size:11px;color:#aaa;">安装命令：<code style="background:#e8e8e8;padding:2px 6px;border-radius:3px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:11px;">npx skills add &lt;来源&gt;@&lt;skill-name&gt; -g -y</code></p>
+    </section>
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 历史热门 Top 20 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #3498db;">历史热门 Top 20</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">按总安装量排序，经过时间考验的经典 Skills</p>
+
+    <section style="margin:0 0 4px;">
+      {{HISTORICAL_LIST}}
+    </section>
+
+    <!-- 安装命令提示 -->
+    <section style="background:#fafafa;border-radius:6px;padding:10px 14px;margin:8px 0 0;">
+      <p style="margin:0;font-size:11px;color:#aaa;">安装命令：<code style="background:#e8e8e8;padding:2px 6px;border-radius:3px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:11px;">npx skills add &lt;来源&gt;@&lt;skill-name&gt; -g -y</code></p>
+    </section>
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 趋势洞察 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #9b59b6;">趋势洞察</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">AI 跨平台趋势分析</p>
+
+    <section style="background:#fffbf5;border:1px solid #ffe8d6;border-radius:10px;padding:18px 16px;margin:0 0 16px;">
+      <p style="font-size:14px;color:#555;margin:0 0 12px;line-height:1.8;">{{INSIGHTS_SUMMARY}}</p>
+      <section style="padding-left:2px;">
+        <section style="padding:0 0 0 14px;margin:0 0 10px;border-left:3px solid #ff6b35;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_1}}</p>
+        </section>
+        <section style="padding:0 0 0 14px;margin:0 0 10px;border-left:3px solid #3498db;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_2}}</p>
+        </section>
+        <section style="padding:0 0 0 14px;margin:0 0 10px;border-left:3px solid #27ae60;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_3}}</p>
+        </section>
+        <section style="padding:0 0 0 14px;margin:0 0 6px;border-left:3px solid #9b59b6;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_4}}</p>
+        </section>
+      </section>
+    </section>
+  </section>
+
+  <!-- ===== 页脚 ===== -->
+  <section style="padding:20px 18px 28px;">
+    <section style="height:1px;background:#eee;margin:0 0 16px;"></section>
+    <p style="text-align:center;font-size:10px;color:#ccc;margin:0;line-height:1.8;">数据来源：<a href="https://skills.sh" style="color:#576b95;text-decoration:none;">skills.sh</a></p>
+    <p style="text-align:center;font-size:10px;color:#ccc;margin:2px 0 0;">每日自动更新</p>
+  </section>
+
+</section>
+
+</body>
+</html>
