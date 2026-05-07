@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f4f5f7;-webkit-text-size-adjust:100%;">
+
+<!-- ================================================================
+     全网热榜日报 - 微信公众号 HTML 模板
+
+     核心约束：
+     - 所有样式必须内联（微信不支持 <style> 和 class）
+     - 使用 <section> 代替 <div>（微信渲染兼容）
+     - 最大宽度 677px（微信文章标准宽度）
+     - 块级占位符 {{BLOCK_NAME}} 由 generate_html.py 填充
+     - 简单占位符 {{变量名}} 直接替换
+
+     排名徽章规则（紧凑型，适配手机端）：
+     - 1: 红色圆形白字  #ff4757  16×16px font-size:9px
+     - 2: 橙色圆形白字  #ff6348  16×16px font-size:9px
+     - 3: 琥珀色圆形白字 #ffa502  16×16px font-size:9px
+     - 4+: 灰色数字无背景  #ccc    16×16px font-size:9px
+
+     焦点卡片热度分级：
+     - 极高: 红色左边框 #e74c3c + 浅红背景 #fef5f5
+     - 高:   蓝色左边框 #3498db + 浅蓝背景 #f0f7ff
+     - 中:   灰色左边框 #95a5a6 + 浅灰背景 #f8f9fa
+
+     财经涨跌幅颜色（中国惯例）：
+     - 涨(正值): #e74c3c 红色
+     - 跌(负值): #27ae60 绿色
+
+     豆瓣评分：
+     - >= 8.0: #e74c3c 红色加粗 + ★
+     - < 8.0: #999 普通灰
+     ================================================================ -->
+
+<!-- ===== 外层容器 ===== -->
+<section style="max-width:677px;margin:0 auto;background:#fff;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',sans-serif;font-size:15px;line-height:1.8;color:#333;word-break:break-word;overflow:hidden;box-sizing:border-box;">
+
+  <!-- ===== 主标题区 ===== -->
+  <section style="background:linear-gradient(135deg,#ff6b35,#ff8c42);padding:28px 24px 32px;text-align:center;">
+    <h1 style="font-size:26px;font-weight:800;color:#fff;margin:0 0 8px;letter-spacing:3px;">全网热榜日报 | {{YYYY年MM月DD日}}</h1>
+    <p style="font-size:12px;color:rgba(255,255,255,0.6);margin:0;letter-spacing:0.5px;">{{PLATFORM_COUNT}} 个平台热点汇总 · 今日全网风向</p>
+  </section>
+
+  <!-- ===== 数据概览条 ===== -->
+  <section style="display:table;width:100%;background:#fff8f5;border-bottom:1px solid #ffe0d0;table-layout:fixed;">
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
+      <p style="margin:0;font-size:20px;font-weight:800;color:#ff6b35;">{{PLATFORM_COUNT}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">覆盖平台</p>
+    </section>
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
+      <p style="margin:0;font-size:20px;font-weight:800;color:#e74c3c;">{{FOCUS_COUNT}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">焦点话题</p>
+    </section>
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
+      <p style="margin:0;font-size:20px;font-weight:800;color:#3498db;">{{INSIGHT_COUNT}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">趋势洞察</p>
+    </section>
+    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;">
+      <p style="margin:0;font-size:20px;font-weight:800;color:#27ae60;">{{FINANCE_COUNT}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">财经热股</p>
+    </section>
+  </section>
+
+  <!-- ===== 今日焦点 ===== -->
+  <section style="padding:24px 18px 8px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #ff6b35;">今日焦点</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">跨平台热度最高的话题，多平台共振才是真热点</p>
+    {{FOCUS_CARDS}}
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 社交媒体 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #ff6b35;">社交媒体</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">微博 / 抖音 / 知乎 / 贴吧</p>
+
+    <h3 style="font-size:15px;font-weight:800;color:#e74c3c;margin:0 0 8px;padding-left:2px;">▎微博热搜</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{WEIBO_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#1a1a1a;margin:0 0 8px;padding-left:2px;">▎抖音热点榜</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{DOUYIN_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#0066ff;margin:0 0 8px;padding-left:2px;">▎知乎热榜</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{ZHIHU_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#4876ff;margin:0 0 8px;padding-left:2px;">▎百度贴吧</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{TIEBA_ROWS}}</tbody>
+      </table>
+    </section>
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 科技社区 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #3498db;">科技社区</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">36氪 / V2EX</p>
+
+    <h3 style="font-size:15px;font-weight:800;color:#1a1a1a;margin:0 0 8px;padding-left:2px;">▎36氪热榜</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{KR36_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#333;margin:0 0 8px;padding-left:2px;">▎V2EX 热门</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{V2EX_ROWS}}</tbody>
+      </table>
+    </section>
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 财经热股 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #e74c3c;">财经热股</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">雪球 / 东方财富 / 同花顺</p>
+
+    <h3 style="font-size:15px;font-weight:800;color:#e74c3c;margin:0 0 8px;padding-left:2px;">▎雪球热股</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{XUEQIU_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#e74c3c;margin:0 0 8px;padding-left:2px;">▎东方财富热股</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{EASTMONEY_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#e74c3c;margin:0 0 8px;padding-left:2px;">▎同花顺热股</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{THS_ROWS}}</tbody>
+      </table>
+    </section>
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 娱乐影视 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #9b59b6;">娱乐影视</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">B站 / 豆瓣 / 虎扑</p>
+
+    <h3 style="font-size:15px;font-weight:800;color:#fb7299;margin:0 0 8px;padding-left:2px;">▎B站热门</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{BILIBILI_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#00b51d;margin:0 0 8px;padding-left:2px;">▎豆瓣热门电影</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{DOUBAN_ROWS}}</tbody>
+      </table>
+    </section>
+
+    <h3 style="font-size:15px;font-weight:800;color:#d4341e;margin:0 0 8px;padding-left:2px;">▎虎扑热门</h3>
+    <section style="margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tbody>{{HUPU_ROWS}}</tbody>
+      </table>
+    </section>
+  </section>
+
+  <!-- ===== 分割线 ===== -->
+  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
+
+  <!-- ========== 趋势洞察 ========== -->
+  <section style="padding:16px 18px 4px;">
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #ff6b35;">趋势洞察</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">AI 跨平台趋势分析</p>
+
+    <section style="background:#fffbf5;border:1px solid #ffe8d6;border-radius:10px;padding:18px 16px;margin:0 0 16px;">
+      <p style="font-size:14px;color:#555;margin:0 0 12px;line-height:1.8;">{{INSIGHTS_SUMMARY}}</p>
+      <section style="padding-left:2px;">
+        <section style="padding:0 0 0 14px;margin:0 0 10px;border-left:3px solid #ff6b35;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_1}}</p>
+        </section>
+        <section style="padding:0 0 0 14px;margin:0 0 10px;border-left:3px solid #3498db;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_2}}</p>
+        </section>
+        <section style="padding:0 0 0 14px;margin:0 0 10px;border-left:3px solid #27ae60;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_3}}</p>
+        </section>
+        <section style="padding:0 0 0 14px;margin:0 0 6px;border-left:3px solid #9b59b6;">
+          <p style="margin:0;font-size:14px;color:#555;line-height:1.75;">{{INSIGHT_4}}</p>
+        </section>
+      </section>
+    </section>
+  </section>
+
+  <!-- ===== 页脚 ===== -->
+  <section style="padding:20px 18px 28px;">
+    <section style="height:1px;background:#eee;margin:0 0 16px;"></section>
+    <p style="text-align:center;font-size:10px;color:#ccc;margin:0;line-height:1.8;">数据来源：微博 / 抖音 / 知乎 / 贴吧 / 36氪 / V2EX / 雪球 / 东方财富 / 同花顺 / B站 / 豆瓣 / 虎扑</p>
+    <p style="text-align:center;font-size:10px;color:#ccc;margin:2px 0 0;">每日自动更新</p>
+  </section>
+
+</section>
+
+</body>
+</html>
