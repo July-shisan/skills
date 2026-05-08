@@ -17,29 +17,16 @@ def format_stars(count):
     return str(count)
 
 
-# Badge colors for top 3 (matching other daily reports)
-BADGE_STYLES = {
-    1: "background:#ff4757;color:#fff;",
-    2: "background:#ff6348;color:#fff;",
-    3: "background:#ffa502;color:#fff;",
-}
+# Compact inline rank number — replaces bulky 16×16 circle badge
+BADGE_COLORS = {1: "#ff4757", 2: "#ff6348", 3: "#ffa502"}
 
 
 def _badge(rank):
-    """Generate 16x16 inline rank badge."""
-    if rank in BADGE_STYLES:
-        extra = BADGE_STYLES[rank]
-        return (
-            f'<span style="display:inline-block;width:16px;height:16px;'
-            f"border-radius:50%;{extra}text-align:center;line-height:16px;"
-            f'font-size:9px;font-weight:800;vertical-align:middle;'
-            f'margin-right:4px;">{rank}</span>'
-        )
+    """Generate compact inline rank number — minimal horizontal footprint."""
+    color = BADGE_COLORS.get(rank, "#ccc")
     return (
-        f'<span style="display:inline-block;width:16px;height:16px;'
-        f"text-align:center;line-height:16px;font-size:9px;"
-        f'color:#ccc;font-weight:800;vertical-align:middle;'
-        f'margin-right:4px;">{rank}</span>'
+        f'<span style="color:{color};font-weight:700;font-size:12px;'
+        f'margin-right:2px;">{rank}.</span>'
     )
 
 
@@ -54,18 +41,11 @@ def generate_trending_card(index, repo):
     stars = format_stars(repo["stargazers_count"])
     stars_period = repo.get("stars_period", 0)
 
-    # Period stars badge
-    period_label = repo.get("period_label", "today")
-    if period_label == "today":
-        period_cn = "今日"
-    else:
-        period_cn = "本周"
+    # Compact period increment — no badge box, no "今日/本周" prefix (redundant with section title)
     if stars_period > 0:
         period_html = (
-            f'<span style="display:inline-block;margin-left:6px;'
-            f'background:#fff5eb;border-radius:3px;padding:0 4px;">'
-            f'<span style="font-size:9px;color:#e36209;font-weight:700;">'
-            f"{period_cn}+{format_stars(stars_period)}</span></span>"
+            f' <span style="font-size:10px;color:#e36209;font-weight:700;">'
+            f"+{format_stars(stars_period)}</span>"
         )
     else:
         period_html = ""
@@ -73,7 +53,7 @@ def generate_trending_card(index, repo):
     desc_cn = repo.get("description_cn", "")
     if desc_cn:
         desc_cn_html = (
-            '<p style="margin:1px 0 0;padding-left:20px;font-size:10px;'
+            '<p style="margin:1px 0 0;padding-left:12px;font-size:10px;'
             'color:#0366d6;line-height:1.4;">' + desc_cn + '</p>'
         )
     else:
@@ -84,17 +64,16 @@ def generate_trending_card(index, repo):
         f'border-bottom:1px solid #f2f2f2;">'
         f'<section style="flex:1;min-width:0;">'
         f'<p style="margin:0;font-weight:700;color:#0366d6;font-size:13px;'
-        f'line-height:1.6;">{_badge(index)}{repo["full_name"]}</p>'
+        f'line-height:1.5;">{_badge(index)}{repo["full_name"]}'
+        f'{period_html}</p>'
         f'{desc_cn_html}'
-        f'<p style="margin:2px 0 0;padding-left:20px;font-size:11px;color:#6a737d;'
+        f'<p style="margin:2px 0 0;padding-left:12px;font-size:11px;color:#6a737d;'
         f'line-height:1.5;">{desc}</p>'
-        f'<section style="margin:3px 0 0;padding-left:20px;">'
-        f'<span style="display:inline-block;width:7px;height:7px;'
-        f'border-radius:50%;background:{lang_color};margin-right:3px;'
+        f'<section style="margin:2px 0 0;padding-left:12px;">'
+        f'<span style="display:inline-block;width:5px;height:5px;'
+        f'border-radius:50%;background:{lang_color};margin-right:2px;'
         f'vertical-align:middle;"></span>'
-        f'<span style="font-size:10px;color:#586069;margin-right:8px;">{lang}</span>'
-        f'<span style="font-size:10px;color:#586069;">&#9733; {stars}</span>'
-        f'{period_html}'
+        f'<span style="font-size:10px;color:#586069;">{lang} ★{stars}</span>'
         f'</section></section></section>'
     )
 
@@ -113,7 +92,7 @@ def generate_active_card(index, repo):
     desc_cn = repo.get("description_cn", "")
     if desc_cn:
         desc_cn_html = (
-            '<p style="margin:1px 0 0;padding-left:20px;font-size:10px;'
+            '<p style="margin:1px 0 0;padding-left:12px;font-size:10px;'
             'color:#0366d6;line-height:1.4;">' + desc_cn + '</p>'
         )
     else:
@@ -124,25 +103,21 @@ def generate_active_card(index, repo):
         f'border-bottom:1px solid #f2f2f2;">'
         f'<section style="flex:1;min-width:0;">'
         f'<p style="margin:0;font-weight:700;color:#0366d6;font-size:13px;'
-        f'line-height:1.6;">{_badge(index)}{repo["full_name"]}</p>'
+        f'line-height:1.5;">{_badge(index)}{repo["full_name"]}</p>'
         f'{desc_cn_html}'
-        f'<p style="margin:2px 0 0;padding-left:20px;font-size:11px;color:#6a737d;'
+        f'<p style="margin:2px 0 0;padding-left:12px;font-size:11px;color:#6a737d;'
         f'line-height:1.5;">{desc}</p>'
-        f'<section style="margin:3px 0 0;padding-left:20px;">'
-        f'<span style="display:inline-block;width:7px;height:7px;'
-        f'border-radius:50%;background:{lang_color};margin-right:3px;'
+        f'<section style="margin:2px 0 0;padding-left:12px;">'
+        f'<span style="display:inline-block;width:5px;height:5px;'
+        f'border-radius:50%;background:{lang_color};margin-right:2px;'
         f'vertical-align:middle;"></span>'
-        f'<span style="font-size:10px;color:#586069;margin-right:8px;">{lang}</span>'
-        f'<span style="font-size:10px;color:#586069;margin-right:8px;">'
-        f'&#9733; {stars}</span>'
-        f'<span style="font-size:10px;color:#586069;">'
-        f'&#128276; {forks}</span>'
+        f'<span style="font-size:10px;color:#586069;">{lang} ★{stars} ⑂{forks}</span>'
         f'</section></section></section>'
     )
 
 
 def generate_recommendation_card(repo, reason):
-    """Generate one recommendation card — full-width stacked layout."""
+    """Generate one recommendation card — compact layout with minimal decoration."""
     lang = repo.get("language") or ""
     lang_color = repo.get("language_color") or "#959da5"
     stars = format_stars(repo["stargazers_count"])
@@ -159,40 +134,32 @@ def generate_recommendation_card(repo, reason):
     else:
         desc_cn_html = ""
 
-    # Period stars
+    # Compact period increment — no badge box, no "今日/本周" prefix
     stars_period = repo.get("stars_period", 0)
-    period_label = repo.get("period_label", "today")
     if stars_period > 0:
-        period_cn = "今日" if period_label == "today" else "本周"
         period_html = (
-            f'<span style="display:inline-block;margin-left:6px;'
-            f'background:#fff5eb;border-radius:3px;padding:0 4px;'
-            f'font-size:9px;color:#e36209;font-weight:700;">'
-            f'{period_cn}+{format_stars(stars_period)}</span>'
+            f' <span style="font-size:10px;color:#e36209;font-weight:700;">'
+            f"+{format_stars(stars_period)}</span>"
         )
     else:
         period_html = ""
 
     return (
-        f'<section style="background:#e8f4fd;border-radius:8px;'
-        f'padding:10px 12px;margin:0 0 8px;border:1px solid #d0e4f7;">'
+        f'<section style="background:#e8f4fd;border-radius:6px;'
+        f'padding:8px 10px;margin:0 0 6px;border:1px solid #d0e4f7;">'
         f'<section style="margin:0 0 3px;">'
-        f'<span style="background:#0366d6;color:#fff;font-size:9px;'
-        f'font-weight:700;padding:1px 6px;border-radius:8px;'
-        f'margin-right:4px;">推荐</span>'
+        f'<span style="color:#0366d6;font-weight:700;font-size:10px;'
+        f'margin-right:2px;">▸</span>'
         f'<span style="font-size:13px;font-weight:700;color:#0366d6;">'
         f'{repo["full_name"]}</span></section>'
         f'<section style="margin:0 0 3px;">'
-        f'<span style="display:inline-block;width:7px;height:7px;'
-        f'border-radius:50%;background:{lang_color};margin-right:3px;'
+        f'<span style="display:inline-block;width:5px;height:5px;'
+        f'border-radius:50%;background:{lang_color};margin-right:2px;'
         f'vertical-align:middle;"></span>'
-        f'<span style="font-size:10px;color:#586069;margin-right:8px;">'
-        f'{lang}</span>'
         f'<span style="font-size:10px;color:#586069;">'
-        f'&#9733; {stars}</span>'
-        f'{period_html}</section>'
+        f'{lang} ★{stars}{period_html}</span></section>'
         f'{desc_cn_html}'
-        f'<p style="font-size:11px;color:#586069;margin:0 0 3px;'
+        f'<p style="font-size:11px;color:#586069;margin:0 0 2px;'
         f'line-height:1.5;">{desc}</p>'
         f'<p style="font-size:10px;color:#6a737d;margin:0;'
         f'line-height:1.5;">{reason}</p></section>'
@@ -400,7 +367,6 @@ def generate_html(data, recommendations=None, insights=None):
     <section style="height:1px;background:#d1d5da;margin:0 0 8px;"></section>
     <p style="font-size:9px;color:#959da5;margin:0 0 1px;">数据来源：GitHub Trending &amp; Search API</p>
     <p style="font-size:9px;color:#959da5;margin:0 0 1px;">每日自动更新</p>
-    <p style="font-size:8px;color:#c8ccd0;margin:0;">Powered by JARVIS</p>
   </section>
 
 </section>

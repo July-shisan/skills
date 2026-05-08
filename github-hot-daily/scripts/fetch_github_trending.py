@@ -229,6 +229,31 @@ def fetch_active_repos():
         return []
 
 
+def load_blacklist():
+    """加载黑名单项目列表"""
+    blacklist_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "blacklist.json")
+    if not os.path.exists(blacklist_path):
+        return set()
+    try:
+        with open(blacklist_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return set(data.get("projects", []))
+    except Exception as e:
+        print(f"⚠️  加载黑名单失败: {e}", file=sys.stderr)
+        return set()
+
+
+def filter_blacklisted(repos, blacklist):
+    """过滤黑名单中的项目"""
+    if not blacklist:
+        return repos
+    filtered = [r for r in repos if r.get("full_name", "") not in blacklist]
+    removed_count = len(repos) - len(filtered)
+    if removed_count > 0:
+        print(f"🗑️  已过滤 {removed_count} 个黑名单项目", file=sys.stderr)
+    return filtered
+
+
 def compute_language_stats(results):
     """统计所有榜单中编程语言出现频次"""
     lang_count = {}
@@ -256,11 +281,15 @@ def main():
     """主函数：获取数据并输出 JSON"""
     print("🚀 开始获取 GitHub 热门仓库数据...", file=sys.stderr)
 
+    blacklist = load_blacklist()
+    if blacklist:
+        print(f"📋 已加载 {len(blacklist)} 个黑名单项目: {', '.join(blacklist)}", file=sys.stderr)
+
     results = {}
 
     # 1. 今日热门：抓取 github.com/trending (daily)
     try:
-        results["today"] = scrape_trending("daily")
+        results["today"] = filter_blacklisted(scrape_trending("daily"), blacklist)
         print(f"✅ 今日热门: 获取到 {len(results['today'])} 个项目", file=sys.stderr)
     except Exception as e:
         print(f"❌ 今日热门获取失败: {e}", file=sys.stderr)
@@ -268,14 +297,14 @@ def main():
 
     # 2. 本周热门：抓取 github.com/trending (weekly)
     try:
-        results["weekly"] = scrape_trending("weekly")
+        results["weekly"] = filter_blacklisted(scrape_trending("weekly"), blacklist)
         print(f"✅ 本周热门: 获取到 {len(results['weekly'])} 个项目", file=sys.stderr)
     except Exception as e:
         print(f"❌ 本周热门获取失败: {e}", file=sys.stderr)
         results["weekly"] = []
 
     # 3. 近期活跃高星 Top20
-    results["active"] = fetch_active_repos()
+    results["active"] = filter_blacklisted(fetch_active_repos(), blacklist)
     if results["active"]:
         print(f"✅ 近期活跃高星: 获取到 {len(results['active'])} 个项目", file=sys.stderr)
 

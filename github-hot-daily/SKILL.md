@@ -97,11 +97,15 @@ python3 ~/.claude/skills/github-hot-daily/scripts/fetch_github_trending.py 2>/tm
 
 | 元素 | 设计 | 样式 |
 |------|------|------|
-| 排名徽章 | 16×16px 圆形数字，内联在项目名行 | `width:16px;height:16px;font-size:9px`，红/橙/琥珀色前3，灰色4+ |
-| 项目名 | 加粗蓝色，徽章后直接跟文字，允许换行 | `font-weight:700;color:#0366d6;font-size:13px` |
-| 中文介绍 | 蓝色小字，缩进20px对齐徽章后文字 | `font-size:10px;color:#0366d6;padding-left:20px` |
-| 描述 | 灰色文字，缩进20px，允许自然换行不截断 | `font-size:11px;color:#6a737d;padding-left:20px` |
-| 语言+Star+期间 | 缩进20px行内排列，紧凑间距 | `font-size:10px;color:#586069;padding-left:20px` |
+| 排名序号 | 内联彩色数字+句点，紧跟项目名 | `font-size:12px;font-weight:700;color:红/橙/琥珀前3,灰色4+;margin-right:2px` |
+| 项目名 | 加粗蓝色，序号后直接跟文字，允许换行 | `font-weight:700;color:#0366d6;font-size:13px` |
+| 中文介绍 | 蓝色小字，缩进12px对齐 | `font-size:10px;color:#0366d6;padding-left:12px` |
+| 描述 | 灰色文字，缩进12px，允许自然换行不截断 | `font-size:11px;color:#6a737d;padding-left:12px` |
+| 语言+Star+期间 | 缩进12px行内排列，紧凑间距 | `font-size:10px;color:#586069;padding-left:12px` |
+| 语言圆点 | 5×5px，2px右间距 | `width:5px;height:5px;border-radius:50%;margin-right:2px` |
+| Star符号 | 单字符★，无空格紧跟数字 | `★15.0k` |
+| Fork符号 | Unicode ⑂，无空格紧跟数字 | `⑂34.8k` |
+| 期间增量 | 无背景框，无"今日/本周"前缀，仅`+6.2k`橙色行内 | `font-size:10px;color:#e36209;font-weight:700` |
 | 卡片行 | flex布局，padding 7px 0 | `display:flex;align-items:flex-start;padding:7px 0` |
 | 卡片容器 | 白底、细边框、圆角 | `border:1px solid #e1e4e8;border-radius:6px` |
 | 行分隔 | 细线 | `border-bottom:1px solid #f2f2f2` |
@@ -110,8 +114,8 @@ python3 ~/.claude/skills/github-hot-daily/scripts/fetch_github_trending.py 2>/tm
 
 | 元素 | 设计 | 样式 |
 |------|------|------|
-| 容器 | 蓝白背景+蓝色边框+圆角 | `background:#e8f4fd;border:1px solid #d0e4f7;border-radius:8px` |
-| 推荐标签 | 蓝色小徽章 | `background:#0366d6;color:#fff;font-size:9px;border-radius:8px` |
+| 容器 | 蓝白背景+蓝色边框+圆角 | `background:#e8f4fd;border:1px solid #d0e4f7;border-radius:6px` |
+| 推荐标记 | 蓝色三角▸，替代徽章 | `color:#0366d6;font-weight:700;font-size:10px` |
 | 中文介绍 | 蓝色小字（与项目卡片同格式） | `font-size:10px;color:#0366d6` |
 
 **数据概览**（标题下方三栏统计）：
@@ -222,6 +226,23 @@ python3 ~/.claude/skills/wechat-article-publisher/scripts/wechat_api.py publish 
 ```bash
 ls -t /Users/guohua/guohua/wechat_hot_github/github-hot-*.html | head -1
 ```
+
+## 黑名单项目配置
+
+可以在 `blacklist.json` 中配置不需要出现在日报中的项目。文件路径：`~/.claude/skills/github-hot-daily/blacklist.json`
+
+```json
+{
+  "projects": [
+    "owner/repo",
+    "another-owner/another-repo"
+  ]
+}
+```
+
+- 将项目的 `full_name`（如 `facebook/react`）添加到 `projects` 数组中即可过滤
+- 过滤在数据获取阶段执行，被过滤的项目不会出现在任何榜单中
+- AI 分析阶段（中文介绍、趋势洞察、编辑推荐）也不会涉及黑名单项目
 
 ## 重要约束
 
