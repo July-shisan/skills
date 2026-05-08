@@ -2,6 +2,10 @@
   "# 说明": "黑名单项目列表，这些项目不会出现在日报中。填写项目的 full_name，如 'owner/repo'",
   "# 格式": "JSON 数组，每个元素为一个项目的 full_name 字符串",
   "projects": [
-    "torvalds/linux"
+    "torvalds/linux",
+    "facebook/react",
+    "tensorflow/tensorflow",
+    "microsoft/vscode",
+    "twbs/bootstrap"
   ]
 }
