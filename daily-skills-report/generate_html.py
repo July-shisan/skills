@@ -7,7 +7,7 @@ Usage:
 
 Data JSON format:
 {
-  "overview": { "trending_new": N, "hot_new": N, "recommendations": N, "insights": N },
+  "overview": { "trending_today": N, "historical_new": N, "recommendations": N, "insights": N },
   "recommendations": [
     {
       "type": "trending|quality|new",
@@ -20,9 +20,6 @@ Data JSON format:
   ],
   "trending": [
     { "name": "...", "source": "owner/repo", "installs": 28100, "desc": "一句话简介", "cross_list": true }
-  ],
-  "hot": [
-    { "name": "...", "source": "owner/repo", "installs": 325, "change": 325, "desc": "一句话简介", "is_new": true }
   ],
   "historical": [
     { "name": "...", "source": "owner/repo", "installs": 28100, "desc": "一句话简介" }
@@ -92,7 +89,7 @@ def _name_style(rank):
 
 
 def trending_item_html(rank, skill):
-    """Generate one trending list item."""
+    """Generate one trending list item (today's hot)."""
     badge = badge_html(rank)
     style = _name_style(rank)
     fire = " 🔥" if skill.get("cross_list") else ""
@@ -111,36 +108,6 @@ def trending_item_html(rank, skill):
         f'<section style="flex-shrink:0;padding-left:6px;text-align:right;">'
         f'<p style="margin:0;font-size:13px;font-weight:800;color:#1a1a1a;'
         f'white-space:nowrap;">{installs}{fire}</p>'
-        f"</section></section>"
-    )
-
-
-def hot_item_html(rank, skill):
-    """Generate one hot list item."""
-    badge = badge_html(rank)
-    style = _name_style(rank)
-    daily = skill.get("change", 0)
-    total = format_installs(skill["installs"])
-    is_new = skill.get("is_new", False)
-    daily_str = f"+{daily}"
-    if is_new:
-        daily_str += " 🆕"
-    desc = skill.get("desc", "")
-    return (
-        f'<section style="display:flex;align-items:flex-start;padding:7px 0;'
-        f'border-bottom:1px solid #f2f2f2;">'
-        f'<section style="flex:1;min-width:0;">'
-        f'<p style="margin:0;{style};font-size:14px;line-height:1.6;">'
-        f"{badge}{skill['name']}"
-        f"</p>"
-        f'<p style="margin:2px 0 0;font-size:11px;color:#bbb;'
-        f'padding-left:20px;">{skill["source"]} · {desc}</p>'
-        f"</section>"
-        f'<section style="flex-shrink:0;padding-left:6px;text-align:right;">'
-        f'<p style="margin:0;font-size:13px;font-weight:800;color:#e74c3c;'
-        f'white-space:nowrap;">{daily_str}</p>'
-        f'<p style="margin:2px 0 0;font-size:9px;color:#ccc;">'
-        f"{total} 总安装</p>"
         f"</section></section>"
     )
 
@@ -205,7 +172,7 @@ def generate_report(data, output_path):
 
     # Overview stats - replace {{N}} one at a time
     overview = data.get("overview", {})
-    overview_keys = ["trending_new", "hot_new", "recommendations", "insights"]
+    overview_keys = ["trending_today", "historical_new", "recommendations", "insights"]
     for key in overview_keys:
         html = html.replace("{{N}}", str(overview.get(key, 0)), 1)
 
@@ -214,15 +181,10 @@ def generate_report(data, output_path):
     rec_html = "\n".join(recommendation_card_html(c) for c in recs)
     html = html.replace("{{RECOMMENDATIONS}}", rec_html)
 
-    # Trending list
+    # Trending list (today's hot)
     trending = data.get("trending", [])
     trending_html = "\n".join(trending_item_html(i + 1, s) for i, s in enumerate(trending))
     html = html.replace("{{TRENDING_LIST}}", trending_html)
-
-    # Hot list
-    hot = data.get("hot", [])
-    hot_html = "\n".join(hot_item_html(i + 1, s) for i, s in enumerate(hot))
-    html = html.replace("{{HOT_LIST}}", hot_html)
 
     # Historical list
     historical = data.get("historical", [])

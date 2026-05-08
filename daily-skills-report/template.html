@@ -40,11 +40,11 @@
   <section style="display:table;width:100%;background:#fff8f5;border-bottom:1px solid #ffe0d0;table-layout:fixed;">
     <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
       <p style="margin:0;font-size:14px;font-weight:600;color:#ff6b35;">{{N}}</p>
-      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">趋势新贵</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">今日热门</p>
     </section>
     <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
-      <p style="margin:0;font-size:14px;font-weight:600;color:#e74c3c;">{{N}}</p>
-      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">新晋热门</p>
+      <p style="margin:0;font-size:14px;font-weight:600;color:#3498db;">{{N}}</p>
+      <p style="margin:2px 0 0;font-size:10px;color:#aaa;letter-spacing:0.5px;">历史热门</p>
     </section>
     <section style="display:table-cell;vertical-align:middle;text-align:center;padding:12px 6px;border-right:1px solid #ffe0d0;">
       <p style="margin:0;font-size:14px;font-weight:600;color:#3498db;">{{N}}</p>
@@ -66,31 +66,13 @@
   <!-- ===== 分割线 ===== -->
   <section style="height:1px;background:#eee;margin:8px 18px;"></section>
 
-  <!-- ========== 本周趋势 Top 20 ========== -->
+  <!-- ========== 今日热门 Top 20 ========== -->
   <section style="padding:16px 18px 4px;">
-    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #ff6b35;">本周趋势 Top 20</h2>
-    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">本周安装增速最快的 Skills，正在爆发中</p>
+    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #ff6b35;">今日热门 Top 20</h2>
+    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">今日最热门的 Skills，正在被大量安装</p>
 
     <section style="margin:0 0 4px;">
       {{TRENDING_LIST}}
-    </section>
-
-    <!-- 安装命令提示 -->
-    <section style="background:#fafafa;border-radius:6px;padding:10px 14px;margin:8px 0 0;">
-      <p style="margin:0;font-size:11px;color:#aaa;">安装命令：<code style="background:#e8e8e8;padding:2px 6px;border-radius:3px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:11px;">npx skills add &lt;来源&gt;@&lt;skill-name&gt; -g -y</code></p>
-    </section>
-  </section>
-
-  <!-- ===== 分割线 ===== -->
-  <section style="height:1px;background:#eee;margin:8px 18px;"></section>
-
-  <!-- ========== 新晋热门 Top 20 ========== -->
-  <section style="padding:16px 18px 4px;">
-    <h2 style="font-size:18px;font-weight:800;color:#1a1a1a;margin:0 0 4px;padding-left:10px;border-left:4px solid #e74c3c;">新晋热门 Top 20</h2>
-    <p style="font-size:12px;color:#aaa;margin:0 0 16px;padding-left:14px;">今日新增安装量最大，刚刚冲榜的 Skills</p>
-
-    <section style="margin:0 0 4px;">
-      {{HOT_LIST}}
     </section>
 
     <!-- 安装命令提示 -->
