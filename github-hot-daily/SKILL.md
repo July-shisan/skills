@@ -91,75 +91,56 @@ python3 ~/.claude/skills/github-hot-daily/scripts/fetch_github_trending.py 2>/tm
 - H1 标题：`GitHub 热门仓库日报 | {YYYY年MM月DD日}`（日期直接显示在标题中）
 - 日期不再单独用 `<p>` 标签显示
 
-#### HTML 设计规范（手机端优化）
+#### HTML 模板文件
 
-**紧凑 flex 布局**（替代表格+inline-block，最大化横向空间）：
+**模板路径**：`/Users/guohua/.claude/skills/github-hot-daily/template.html`
+**生成脚本**：`/Users/guohua/.claude/skills/github-hot-daily/scripts/generate_html.py`
 
-| 元素 | 设计 | 样式 |
-|------|------|------|
-| 排名序号 | 内联彩色数字+句点，紧跟项目名 | `font-size:12px;font-weight:700;color:红/橙/琥珀前3,灰色4+;margin-right:2px` |
-| 项目名 | 加粗蓝色，序号后直接跟文字，允许换行 | `font-weight:700;color:#0366d6;font-size:13px` |
-| 中文介绍 | 蓝色小字，缩进12px对齐 | `font-size:10px;color:#0366d6;padding-left:12px` |
-| 描述 | 灰色文字，缩进12px，允许自然换行不截断 | `font-size:11px;color:#6a737d;padding-left:12px` |
-| 语言+Star+期间 | 缩进12px行内排列，紧凑间距 | `font-size:10px;color:#586069;padding-left:12px` |
-| 语言圆点 | 5×5px，2px右间距 | `width:5px;height:5px;border-radius:50%;margin-right:2px` |
-| Star符号 | 单字符★，无空格紧跟数字 | `★15.0k` |
-| Fork符号 | Unicode ⑂，无空格紧跟数字 | `⑂34.8k` |
-| 期间增量 | 无背景框，无"今日/本周"前缀，仅`+6.2k`橙色行内 | `font-size:10px;color:#e36209;font-weight:700` |
-| 卡片行 | flex布局，padding 7px 0 | `display:flex;align-items:flex-start;padding:7px 0` |
-| 卡片容器 | 白底、细边框、圆角 | `border:1px solid #e1e4e8;border-radius:6px` |
-| 行分隔 | 细线 | `border-bottom:1px solid #f2f2f2` |
+**生成流程**：
 
-**推荐卡片**：
+1. 将 Phase 2-3 处理和 AI 分析后的数据组装为 JSON 文件
+2. 调用 Python 脚本读取模板并填充数据：
 
-| 元素 | 设计 | 样式 |
-|------|------|------|
-| 容器 | 蓝白背景+蓝色边框+圆角 | `background:#e8f4fd;border:1px solid #d0e4f7;border-radius:6px` |
-| 推荐标记 | 蓝色三角▸，替代徽章 | `color:#0366d6;font-weight:700;font-size:10px` |
-| 中文介绍 | 蓝色小字（与项目卡片同格式） | `font-size:10px;color:#0366d6` |
+```bash
+python3 ~/.claude/skills/github-hot-daily/scripts/generate_html.py data.json output.html
+```
 
-**数据概览**（标题下方三栏统计）：
+3. 脚本自动定位同目录的 `template.html`，替换 `{{占位符}}` 后生成最终 HTML
 
-| 元素 | 样式 |
-|------|------|
-| 数字 | 16px 加粗，对应分类色（橙/蓝/绿） |
-| 标签 | 10px 灰色 |
-| 布局 | display:table 三列等分 |
+**模板占位符说明**：
 
-**语言热度进度条**：
+| 占位符 | 说明 | 数据来源 |
+|--------|------|----------|
+| `{{DATE_STR}}` | 中文日期（如"2026年05月08日"） | 当前日期 |
+| `{{TODAY_COUNT}}` | 今日热门项目数 | `len(today)` |
+| `{{WEEKLY_COUNT}}` | 本周热门项目数 | `len(weekly)` |
+| `{{ACTIVE_COUNT}}` | 活跃高星项目数 | `len(active)` |
+| `{{RECOMMENDATIONS_SECTION}}` | 编辑推荐区域（含标题+卡片列表） | AI 分析生成 |
+| `{{TODAY_LIST}}` | 今日热门项目卡片列表 | trending 数据渲染 |
+| `{{WEEKLY_LIST}}` | 本周热门项目卡片列表 | trending 数据渲染 |
+| `{{ACTIVE_LIST}}` | 活跃高星项目卡片列表 | Search API 数据渲染 |
+| `{{LANGUAGE_SECTION}}` | 语言热度排行区域（含标题+进度条） | language_stats 数据渲染 |
+| `{{INSIGHTS_SECTION}}` | 趋势洞察区域（含标题+洞察条目） | AI 分析生成 |
 
-| 元素 | 样式 |
-|------|------|
-| 容器 | 灰底圆角卡片 |
-| 标签 | 8px 彩色圆点 + 11px 加粗语言名 + 9px 灰色"N 个项目 · X%" |
-| 进度条 | 5px 高圆角，对应语言色 |
+**模板设计要点（已针对手机端优化）**：
+- 排名序号内联在项目名行内，不占独立 flex 列（节省横向空间）
+- 项目名允许自然换行，不做 white-space:nowrap 截断
+- 中文介绍蓝色小字缩进对齐（padding-left:12px）
+- 英文描述灰色文字缩进对齐
+- 语言圆点+Star+期间增量紧凑行内排列
+- 数据概览用 display:flex 三等分（flex:1），确保占比均匀
+- 所有样式内联，兼容微信渲染
 
-**趋势洞察**：
-
-| 元素 | 样式 |
-|------|------|
-| 容器 | 浅蓝背景+圆角 | `background:#f0f7ff;border-radius:8px` |
-| 标题 | 11px 加粗 |
-| 内容 | 10px 灰色，1.5 行高 |
-
-#### 语言颜色映射
-
-| 语言 | 颜色 | 语言 | 颜色 |
-|------|------|------|------|
-| Python | `#3572A5` | TypeScript | `#2b7489` |
-| JavaScript | `#f1e05a` | Go | `#00ADD8` |
-| Rust | `#dea584` | Java | `#b07219` |
-| C++ | `#f34b7d` | C | `#555555` |
-| Swift | `#ffac45` | Kotlin | `#A97BFF` |
-| Ruby | `#701516` | Shell | `#89e051` |
-| Dart | `#00B4AB` | HTML | `#e34c26` |
-| CSS | `#563d7c` | Jupyter | `#DA5B0B` |
-| 其他/空 | `#959da5` | | |
-
-#### Star 数格式化
-
-- < 1000: 原始数字（如 856）
-- >= 1000: 保留1位小写 + k（如 1.2k, 9.8k, 463.0k）
+**内容模块顺序**（模板中从上到下）：
+1. 标题 + 渐变分割线
+2. 数据概览（今日/本周/活跃 三等分 flex）
+3. 编辑推荐
+4. 语言热度排行
+5. 趋势洞察
+6. 今日热门 Top 20
+7. 本周热门 Top 20
+8. 近期活跃高星 Top 20
+9. 页脚
 
 ### Phase 5: 保存文档
 
@@ -257,3 +238,4 @@ ls -t /Users/guohua/guohua/wechat_hot_github/github-hot-*.html | head -1
 9. **卡片式布局替代表格**：优化手机端阅读体验
 10. **只保存到草稿箱**：不自动正式发布，用户手动操作
 11. **description 为 null 时显示 "No description"**
+12. **HTML 模板独立维护**：模板存放在 `template.html`，`generate_html.py` 读取模板并填充占位符，保证每次生成格式一致

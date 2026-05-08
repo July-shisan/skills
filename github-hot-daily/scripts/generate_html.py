@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 GitHub 热门仓库日报 HTML 生成器
-将 JSON 数据转换为适配微信公众号格式的 HTML 报告
-采用紧凑 flex 布局，优化手机端横向空间利用
+读取 template.html 模板并填充数据，保证每次生成格式一致
 """
 
 import json
@@ -12,17 +11,20 @@ from datetime import datetime
 
 
 def format_stars(count):
+    if count is None:
+        return "0"
+    count = int(count)
     if count >= 1000:
         return f"{count / 1000:.1f}k"
     return str(count)
 
 
-# Compact inline rank number — replaces bulky 16×16 circle badge
+# Compact inline rank number
 BADGE_COLORS = {1: "#ff4757", 2: "#ff6348", 3: "#ffa502"}
 
 
 def _badge(rank):
-    """Generate compact inline rank number — minimal horizontal footprint."""
+    """Generate compact inline rank number."""
     color = BADGE_COLORS.get(rank, "#ccc")
     return (
         f'<span style="color:{color};font-weight:700;font-size:12px;'
@@ -32,16 +34,15 @@ def _badge(rank):
 
 def generate_trending_card(index, repo):
     """Generate one trending repo row (today/weekly, with period stars)."""
-    desc = repo["description"] or ""
+    desc = repo.get("description") or ""
     if len(desc) > 80:
         desc = desc[:77] + "..."
 
     lang = repo.get("language") or ""
     lang_color = repo.get("language_color") or "#959da5"
-    stars = format_stars(repo["stargazers_count"])
+    stars = format_stars(repo.get("stargazers_count", 0))
     stars_period = repo.get("stars_period", 0)
 
-    # Compact period increment — no badge box, no "今日/本周" prefix (redundant with section title)
     if stars_period > 0:
         period_html = (
             f' <span style="font-size:10px;color:#e36209;font-weight:700;">'
@@ -80,14 +81,14 @@ def generate_trending_card(index, repo):
 
 def generate_active_card(index, repo):
     """Generate one active repo row (with forks)."""
-    desc = repo["description"] or ""
+    desc = repo.get("description") or ""
     if len(desc) > 80:
         desc = desc[:77] + "..."
 
     lang = repo.get("language") or ""
     lang_color = repo.get("language_color") or "#959da5"
-    stars = format_stars(repo["stargazers_count"])
-    forks = format_stars(repo["forks_count"])
+    stars = format_stars(repo.get("stargazers_count", 0))
+    forks = format_stars(repo.get("forks_count", 0))
 
     desc_cn = repo.get("description_cn", "")
     if desc_cn:
@@ -111,17 +112,18 @@ def generate_active_card(index, repo):
         f'<span style="display:inline-block;width:5px;height:5px;'
         f'border-radius:50%;background:{lang_color};margin-right:2px;'
         f'vertical-align:middle;"></span>'
-        f'<span style="font-size:10px;color:#586069;">{lang} ★{stars} ⑂{forks}</span>'
+        f'<span style="font-size:10px;color:#586069;">'
+        f'{lang} ★{stars} ⑂{forks}</span>'
         f'</section></section></section>'
     )
 
 
 def generate_recommendation_card(repo, reason):
-    """Generate one recommendation card — compact layout with minimal decoration."""
+    """Generate one recommendation card."""
     lang = repo.get("language") or ""
     lang_color = repo.get("language_color") or "#959da5"
-    stars = format_stars(repo["stargazers_count"])
-    desc = repo["description"] or ""
+    stars = format_stars(repo.get("stargazers_count", 0))
+    desc = repo.get("description") or ""
     if len(desc) > 80:
         desc = desc[:77] + "..."
 
@@ -134,7 +136,6 @@ def generate_recommendation_card(repo, reason):
     else:
         desc_cn_html = ""
 
-    # Compact period increment — no badge box, no "今日/本周" prefix
     stars_period = repo.get("stars_period", 0)
     if stars_period > 0:
         period_html = (
@@ -193,7 +194,15 @@ def generate_language_bar(lang_stat):
 
 
 def generate_html(data, recommendations=None, insights=None):
-    """Generate full HTML report."""
+    """Generate full HTML report from template."""
+    # Locate template file
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    skill_dir = os.path.dirname(script_dir)
+    template_path = os.path.join(skill_dir, "template.html")
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        template = f.read()
+
     date_str = datetime.now().strftime("%Y年%m月%d日")
     today_repos = data.get("today", [])
     weekly_repos = data.get("weekly", [])
@@ -238,7 +247,13 @@ def generate_html(data, recommendations=None, insights=None):
                 f'line-height:1.5;">{content}</p></section>'
             )
 
-    # Sections
+    # Empty state for failed sections
+    empty_state = (
+        '<section style="padding:14px 0;text-align:center;">'
+        '<p style="font-size:11px;color:#ccc;margin:0;">数据获取失败</p></section>'
+    )
+
+    # Build recommendations section
     rec_section = ""
     if rec_cards:
         rec_section = (
@@ -252,6 +267,7 @@ def generate_html(data, recommendations=None, insights=None):
             f'margin:12px 0;"></section>'
         )
 
+    # Build insights section
     insights_section = ""
     if insights_html:
         insights_section = (
@@ -267,6 +283,7 @@ def generate_html(data, recommendations=None, insights=None):
             f'margin:12px 0;"></section>'
         )
 
+    # Build language section
     lang_section = ""
     if lang_bars:
         lang_section = (
@@ -282,96 +299,18 @@ def generate_html(data, recommendations=None, insights=None):
             f'margin:12px 0;"></section>'
         )
 
-    today_count = len(today_repos)
-    weekly_count = len(weekly_repos)
-    active_count = len(active_repos)
-
-    # Empty state for failed sections
-    empty_today = (
-        '<section style="padding:14px 0;text-align:center;">'
-        '<p style="font-size:11px;color:#ccc;margin:0;">数据获取失败</p></section>'
-    )
-    empty_weekly = empty_today
-    empty_active = empty_today
-
-    html = f'''<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-</head>
-<body style="margin:0;padding:0;background:#fff;-webkit-text-size-adjust:100%;">
-<section style="max-width:677px;margin:0 auto;padding:10px 12px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Segoe UI',sans-serif;font-size:13px;line-height:1.6;color:#24292e;box-sizing:border-box;">
-
-  <!-- 标题区 -->
-  <section style="text-align:center;padding:12px 0 8px;">
-    <h1 style="font-size:18px;font-weight:800;color:#24292e;margin:0 0 4px;letter-spacing:1px;">GitHub 热门仓库日报 | {date_str}</h1>
-    <p style="font-size:10px;color:#959da5;margin:0;">发现开源世界的新星与趋势</p>
-  </section>
-
-  <!-- 渐变分割线 -->
-  <section style="height:2px;background:linear-gradient(90deg,#ff6b35,#0366d6,#28a745);margin:8px 0;border-radius:1px;"></section>
-
-  <!-- 数据概览 -->
-  <section style="display:table;width:100%;margin:0 0 6px;table-layout:fixed;">
-    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:8px 4px;">
-      <p style="margin:0;font-size:16px;font-weight:800;color:#f78166;">{today_count}</p>
-      <p style="margin:1px 0 0;font-size:10px;color:#959da5;">今日热门</p>
-    </section>
-    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:8px 4px;border-left:1px solid #e1e4e8;border-right:1px solid #e1e4e8;">
-      <p style="margin:0;font-size:16px;font-weight:800;color:#0366d6;">{weekly_count}</p>
-      <p style="margin:1px 0 0;font-size:10px;color:#959da5;">本周热门</p>
-    </section>
-    <section style="display:table-cell;vertical-align:middle;text-align:center;padding:8px 4px;">
-      <p style="margin:0;font-size:16px;font-weight:800;color:#28a745;">{active_count}</p>
-      <p style="margin:1px 0 0;font-size:10px;color:#959da5;">活跃高星</p>
-    </section>
-  </section>
-
-  <section style="height:1px;background:#e1e4e8;margin:6px 0;"></section>
-
-  {rec_section}
-
-  <!-- 今日热门 Top20 -->
-  <h2 style="font-size:15px;font-weight:700;color:#24292e;border-left:3px solid #f78166;padding-left:8px;margin:14px 0 5px;">今日热门 Top 20</h2>
-  <p style="font-size:10px;color:#959da5;margin:0 0 8px;">今日新增 Star 最多的开源项目</p>
-  <section style="background:#fff;border:1px solid #e1e4e8;border-radius:6px;overflow:hidden;padding:0 10px;">
-    {today_cards if today_cards else empty_today}
-  </section>
-
-  <section style="height:1px;background:#e1e4e8;margin:12px 0;"></section>
-
-  <!-- 本周热门 Top20 -->
-  <h2 style="font-size:15px;font-weight:700;color:#24292e;border-left:3px solid #0366d6;padding-left:8px;margin:14px 0 5px;">本周热门 Top 20</h2>
-  <p style="font-size:10px;color:#959da5;margin:0 0 8px;">本周新增 Star 最多的开源项目</p>
-  <section style="background:#fff;border:1px solid #e1e4e8;border-radius:6px;overflow:hidden;padding:0 10px;">
-    {weekly_cards if weekly_cards else empty_weekly}
-  </section>
-
-  <section style="height:1px;background:#e1e4e8;margin:12px 0;"></section>
-
-  <!-- 近期活跃高星 Top20 -->
-  <h2 style="font-size:15px;font-weight:700;color:#24292e;border-left:3px solid #28a745;padding-left:8px;margin:14px 0 5px;">近期活跃高星 Top 20</h2>
-  <p style="font-size:10px;color:#959da5;margin:0 0 8px;">近3天有推送且 Star 超过 1 万的成熟项目</p>
-  <section style="background:#fff;border:1px solid #e1e4e8;border-radius:6px;overflow:hidden;padding:0 10px;">
-    {active_cards if active_cards else empty_active}
-  </section>
-
-  <section style="height:1px;background:#e1e4e8;margin:12px 0;"></section>
-
-  {lang_section}
-  {insights_section}
-
-  <!-- 页脚 -->
-  <section style="text-align:center;padding:10px 0 6px;">
-    <section style="height:1px;background:#d1d5da;margin:0 0 8px;"></section>
-    <p style="font-size:9px;color:#959da5;margin:0 0 1px;">数据来源：GitHub Trending &amp; Search API</p>
-    <p style="font-size:9px;color:#959da5;margin:0 0 1px;">每日自动更新</p>
-  </section>
-
-</section>
-</body>
-</html>'''
+    # Fill template placeholders — order matches template: 推荐→语言→洞察→榜单
+    html = template
+    html = html.replace("{{DATE_STR}}", date_str)
+    html = html.replace("{{TODAY_COUNT}}", str(len(today_repos)))
+    html = html.replace("{{WEEKLY_COUNT}}", str(len(weekly_repos)))
+    html = html.replace("{{ACTIVE_COUNT}}", str(len(active_repos)))
+    html = html.replace("{{RECOMMENDATIONS_SECTION}}", rec_section)
+    html = html.replace("{{LANGUAGE_SECTION}}", lang_section)
+    html = html.replace("{{INSIGHTS_SECTION}}", insights_section)
+    html = html.replace("{{TODAY_LIST}}", today_cards if today_cards else empty_state)
+    html = html.replace("{{WEEKLY_LIST}}", weekly_cards if weekly_cards else empty_state)
+    html = html.replace("{{ACTIVE_LIST}}", active_cards if active_cards else empty_state)
 
     return html
 
